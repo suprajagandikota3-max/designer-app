@@ -5,91 +5,22 @@ import io
 import os
 from uuus.ai_text_generator import get_ai_suggestions, generate_ai_text
 
-# Page configuration
-st.set_page_config(
-    page_title="Smart Designer App",
-    page_icon="🎨",
-    layout="wide"
-)
-
-# Custom CSS with font previews
-st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.5rem;
-        color: #4A00E0;
-        text-align: center;
-        margin-bottom: 1rem;
-        font-family: 'Arial', sans-serif;
-    }
-    .sub-header {
-        color: #8E2DE2;
-        font-size: 1.3rem;
-        margin-top: 1.5rem;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .stButton>button {
-        width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-family: 'Arial', sans-serif;
-    }
-    .ai-suggestion-btn {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-        margin: 5px 0;
-    }
-    .design-preview {
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 20px;
-        background: white;
-    }
-    .download-btn {
-        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%) !important;
-    }
-    .font-option {
-        padding: 8px;
-        border-radius: 5px;
-        margin: 3px 0;
-        border: 1px solid #e0e0e0;
-        cursor: pointer;
-    }
-    .font-option:hover {
-        background-color: #f5f5f5;
-    }
-    .font-option.selected {
-        background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
-        border-color: #667eea;
-    }
-    .font-preview {
-        padding: 10px;
-        margin: 5px 0;
-        border-radius: 5px;
-        background: #f9f9f9;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Available fonts dictionary with fallbacks
+# Available fonts dictionary
 FONT_STYLES = {
-    "Arial": "arial.ttf",
-    "Arial Bold": "arialbd.ttf",
-    "Times New Roman": "times.ttf",
-    "Georgia": "georgia.ttf",
-    "Verdana": "verdana.ttf",
-    "Courier New": "cour.ttf",
-    "Trebuchet MS": "trebuc.ttf",
-    "Comic Sans MS": "comic.ttf",
-    "Impact": "impact.ttf",
-    "Tahoma": "tahoma.ttf",
-    "Lucida Console": "lucon.ttf",
-    "Palatino": "pala.ttf",
-    "Garamond": "gara.ttf",
-    "Bookman": "bookman.ttf"
+    "Arial": "arial",
+    "Arial Bold": "arialbd",
+    "Times New Roman": "times",
+    "Georgia": "georgia",
+    "Verdana": "verdana",
+    "Courier New": "cour",
+    "Trebuchet MS": "trebuc",
+    "Comic Sans MS": "comic",
+    "Impact": "impact",
+    "Tahoma": "tahoma",
+    "Lucida Console": "lucon",
+    "Palatino": "pala",
+    "Garamond": "gara",
+    "Bookman": "bookman"
 }
 
 # Font categories for better organization
@@ -99,6 +30,113 @@ FONT_CATEGORIES = {
     "Monospace": ["Courier New", "Lucida Console"],
     "Casual": ["Comic Sans MS", "Impact"]
 }
+
+def detect_available_fonts():
+    """Detect which fonts are available on the system"""
+    available = {}
+    
+    # Common fonts that are usually available
+    common_fonts = {
+        "Arial": ["arial.ttf", "arial"],
+        "Times New Roman": ["times.ttf", "times"],
+        "Verdana": ["verdana.ttf", "verdana"],
+        "Georgia": ["georgia.ttf", "georgia"],
+        "Courier New": ["cour.ttf", "cour"],
+        "Comic Sans MS": ["comic.ttf", "comic"],
+        "Impact": ["impact.ttf", "impact"]
+    }
+    
+    # Always include default fonts that should work
+    for font_name in FONT_STYLES.keys():
+        available[font_name] = FONT_STYLES[font_name]
+    
+    return available
+
+def load_font(font_name, font_size):
+    """Load font with fallback handling"""
+    try:
+        # Try to load the font
+        font_file = FONT_STYLES.get(font_name, "arial")
+        
+        # Common font paths to try
+        font_paths = [
+            font_file + ".ttf",
+            font_file,
+            "arial.ttf",  # Fallback
+            None  # Will trigger default font
+        ]
+        
+        for font_path in font_paths:
+            try:
+                if font_path:
+                    return ImageFont.truetype(font_path, font_size)
+            except:
+                continue
+        
+        # Fallback to default font
+        return ImageFont.load_default()
+            
+    except Exception as e:
+        # If everything fails, use default font
+        return ImageFont.load_default()
+
+# Page configuration
+st.set_page_config(
+    page_title="Smart Designer App",
+    page_icon="🎨",
+    layout="wide"
+)
+
+# Custom CSS
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        color: #4A00E0;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .sub-header {
+        color: #8E2DE2;
+        font-size: 1.3rem;
+        margin-top: 1.5rem;
+    }
+    .stButton>button {
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+    .font-option {
+        padding: 8px;
+        border-radius: 5px;
+        margin: 3px 0;
+        border: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .font-option:hover {
+        background-color: #f5f5f5;
+        transform: translateY(-2px);
+    }
+    .font-option.selected {
+        background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+        border-color: #667eea;
+        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.2);
+    }
+    .font-preview-box {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        background: white;
+        border: 2px solid #e0e0e0;
+        min-height: 80px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize session state
 if 'design_count' not in st.session_state:
@@ -111,60 +149,6 @@ if 'selected_font' not in st.session_state:
     st.session_state.selected_font = "Arial"
 if 'available_fonts' not in st.session_state:
     st.session_state.available_fonts = detect_available_fonts()
-
-def detect_available_fonts():
-    """Detect which fonts are available on the system"""
-    available = {}
-    system_fonts = [
-        "arial.ttf", "arialbd.ttf", "times.ttf", "georgia.ttf", 
-        "verdana.ttf", "cour.ttf", "trebuc.ttf", "comic.ttf",
-        "impact.ttf", "tahoma.ttf", "lucon.ttf", "pala.ttf",
-        "gara.ttf", "bookman.ttf"
-    ]
-    
-    # Common font paths for different OS
-    font_paths = [
-        "/usr/share/fonts/truetype/",
-        "/usr/share/fonts/TTF/",
-        "C:/Windows/Fonts/",
-        "/Library/Fonts/",
-        "/System/Library/Fonts/"
-    ]
-    
-    for font_name, font_file in FONT_STYLES.items():
-        available[font_name] = font_file
-    
-    return available
-
-def load_font(font_name, font_size):
-    """Load font with fallback handling"""
-    try:
-        # First try to load from system
-        if font_name in st.session_state.available_fonts:
-            font_file = st.session_state.available_fonts[font_name]
-            font_paths_to_try = [
-                font_file,
-                f"C:/Windows/Fonts/{font_file}",
-                f"/usr/share/fonts/truetype/{font_file}",
-                f"/Library/Fonts/{font_file}"
-            ]
-            
-            for font_path in font_paths_to_try:
-                try:
-                    return ImageFont.truetype(font_path, font_size)
-                except:
-                    continue
-        
-        # Try direct loading for common fonts
-        try:
-            return ImageFont.truetype(font_name.lower().replace(" ", ""), font_size)
-        except:
-            # Fallback to default font
-            return ImageFont.load_default()
-            
-    except Exception as e:
-        st.warning(f"Font '{font_name}' not found. Using default font.")
-        return ImageFont.load_default()
 
 # Header
 st.markdown("<h1 class='main-header'>🎨 Smart Designer App</h1>", unsafe_allow_html=True)
@@ -189,28 +173,36 @@ with st.sidebar:
     # Apply template settings
     if template != "Custom":
         if template == "Modern Business":
-            st.session_state.bg_color = "#2C3E50"
-            st.session_state.text_color = "#ECF0F1"
-            st.session_state.selected_font = "Arial"
+            bg_color = "#2C3E50"
+            text_color = "#ECF0F1"
+            selected_font = "Arial"
         elif template == "Creative Arts":
-            st.session_state.bg_color = "#9B59B6"
-            st.session_state.text_color = "#FFFFFF"
-            st.session_state.selected_font = "Comic Sans MS"
+            bg_color = "#9B59B6"
+            text_color = "#FFFFFF"
+            selected_font = "Comic Sans MS"
         elif template == "Tech Startup":
-            st.session_state.bg_color = "#3498DB"
-            st.session_state.text_color = "#FFFFFF"
-            st.session_state.selected_font = "Courier New"
+            bg_color = "#3498DB"
+            text_color = "#FFFFFF"
+            selected_font = "Courier New"
         elif template == "Elegant":
-            st.session_state.bg_color = "#7F8C8D"
-            st.session_state.text_color = "#F7F9F9"
-            st.session_state.selected_font = "Georgia"
+            bg_color = "#7F8C8D"
+            text_color = "#F7F9F9"
+            selected_font = "Georgia"
         elif template == "Bold & Bright":
-            st.session_state.bg_color = "#E74C3C"
-            st.session_state.text_color = "#FFFFFF"
-            st.session_state.selected_font = "Impact"
+            bg_color = "#E74C3C"
+            text_color = "#FFFFFF"
+            selected_font = "Impact"
+        
+        # Apply template to session state
+        if 'bg_color' not in st.session_state:
+            st.session_state.bg_color = bg_color
+        if 'text_color' not in st.session_state:
+            st.session_state.text_color = text_color
+        st.session_state.selected_font = selected_font
     
     st.markdown("---")
     st.markdown(f"**Designs Created:** {st.session_state.design_count}")
+    st.markdown(f"**Available Fonts:** {len(st.session_state.available_fonts)}")
 
 # Main content in two columns
 col1, col2 = st.columns([1, 1])
@@ -275,9 +267,9 @@ with col1:
         col_t1, col_t2 = st.columns([2, 1])
         
         with col_t1:
-            font_size = st.slider("Font Size:", 20, 120, 48, help="Adjust text size")
+            font_size = st.slider("Font Size:", 20, 120, 48)
             
-            # Font style selection with preview
+            # Font style selection
             st.markdown("**Font Style:**")
             
             # Font category selector
@@ -292,53 +284,48 @@ with col1:
             else:
                 font_options = FONT_CATEGORIES.get(font_category, list(FONT_STYLES.keys()))
             
-            # Display fonts in columns for better layout
-            font_cols = st.columns(2)
-            for idx, font_name in enumerate(font_options):
-                col_idx = idx % 2
-                with font_cols[col_idx]:
-                    font_class = "selected" if font_name == st.session_state.selected_font else ""
+            # Display font options
+            for font_name in font_options:
+                col_f1, col_f2 = st.columns([3, 1])
+                with col_f1:
+                    # Font preview
+                    font_style = f"font-family: '{font_name}', sans-serif;"
+                    is_selected = font_name == st.session_state.selected_font
+                    selected_class = "selected" if is_selected else ""
+                    
                     st.markdown(
                         f"""
-                        <div class="font-option {font_class}" onclick="
-                            this.style.backgroundColor='#f0f0f0';
-                            setTimeout(() => {{
-                                document.getElementById('font_{font_name}').click();
-                            }}, 100);
+                        <div class="font-option {selected_class}" onclick="
+                            document.getElementById('select_{font_name}').click();
                         ">
-                            <div style="font-family: '{font_name}', sans-serif; padding: 5px;">
+                            <div style="{font_style} font-size: 14px; padding: 5px;">
                                 {font_name}
                             </div>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
-                    
-                    # Hidden radio button
-                    if st.button(f"Select {font_name}", key=f"font_{font_name}", type="secondary", use_container_width=True):
+                
+                with col_f2:
+                    if st.button("Select", key=f"select_{font_name}", type="primary" if is_selected else "secondary"):
                         st.session_state.selected_font = font_name
                         st.rerun()
         
         with col_t2:
-            # Font preview
-            st.markdown("**Preview:**")
-            preview_text = design_text[:30] + "..." if len(design_text) > 30 else design_text
+            # Font preview box
+            st.markdown("**Font Preview:**")
             preview_html = f"""
-            <div class="font-preview" style="
-                font-family: '{st.session_state.selected_font}', sans-serif;
-                font-size: 16px;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                background: white;
-            ">
-                {preview_text}
+            <div class="font-preview-box" style="font-family: '{st.session_state.selected_font}', sans-serif; font-size: 16px;">
+                <strong>Selected Font:</strong><br>
+                {st.session_state.selected_font}<br><br>
+                <strong>Sample:</strong><br>
+                The quick brown fox jumps
             </div>
             """
             st.markdown(preview_html, unsafe_allow_html=True)
             
-            # Show current selection
-            st.info(f"Selected: **{st.session_state.selected_font}**")
+            # Font info
+            st.info(f"**Current:** {st.session_state.selected_font}")
     
     with tab2:
         col_c1, col_c2 = st.columns(2)
@@ -348,7 +335,7 @@ with col1:
             text_color = st.color_picker("Text Color:", "#000000")
         
         # Color scheme suggestions
-        if st.button("🎨 Suggest Colors"):
+        if st.button("🎨 Suggest Color Scheme"):
             color_schemes = [
                 ("#2C3E50", "#ECF0F1"),  # Dark blue / Light gray
                 ("#E74C3C", "#FFFFFF"),   # Red / White
@@ -360,19 +347,11 @@ with col1:
             scheme = random.choice(color_schemes)
             bg_color = scheme[0]
             text_color = scheme[1]
-            st.success(f"Applied: {scheme[0]} / {scheme[1]}")
+            st.success(f"Applied color scheme!")
     
     with tab3:
-        alignment = st.selectbox("Text Alignment:", ["Left", "Center", "Right"], 
-                               help="Align text within the design")
-        
-        col_l1, col_l2 = st.columns(2)
-        with col_l1:
-            padding = st.slider("Padding:", 10, 100, 30, 
-                              help="Space around text")
-        with col_l2:
-            line_spacing = st.slider("Line Spacing:", 1.0, 2.5, 1.2, 0.1,
-                                   help="Space between lines")
+        alignment = st.selectbox("Text Alignment:", ["Left", "Center", "Right"])
+        padding = st.slider("Padding:", 10, 100, 30)
     
     # Generate button
     generate_btn = st.button("🚀 Generate Design", type="primary", use_container_width=True)
@@ -396,43 +375,22 @@ with col2:
                 # Load selected font
                 font = load_font(st.session_state.selected_font, font_size)
                 
-                # Handle multiline text
-                lines = design_text.split('\n')
-                total_height = 0
-                line_heights = []
+                # Calculate text position
+                text_bbox = draw.textbbox((0, 0), design_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
                 
-                # Calculate total height
-                for line in lines:
-                    if line.strip():  # Only calculate for non-empty lines
-                        text_bbox = draw.textbbox((0, 0), line, font=font)
-                        line_height = text_bbox[3] - text_bbox[1]
-                        line_heights.append(line_height)
-                        total_height += line_height * line_spacing
-                    else:
-                        line_heights.append(0)
+                # Set x position based on alignment
+                x = padding
+                if alignment == "Center":
+                    x = (width - text_width) / 2
+                elif alignment == "Right":
+                    x = width - text_width - padding
                 
-                # Calculate starting Y position
-                start_y = (height - total_height) / 2
-                current_y = start_y
+                y = (height - text_height) / 2
                 
-                # Draw each line
-                for i, line in enumerate(lines):
-                    if line.strip():  # Only draw non-empty lines
-                        text_bbox = draw.textbbox((0, 0), line, font=font)
-                        text_width = text_bbox[2] - text_bbox[0]
-                        line_height = line_heights[i]
-                        
-                        # Set x position based on alignment
-                        if alignment == "Left":
-                            x = padding
-                        elif alignment == "Center":
-                            x = (width - text_width) / 2
-                        else:  # Right
-                            x = width - text_width - padding
-                        
-                        # Draw text
-                        draw.text((x, current_y), line, font=font, fill=text_color)
-                        current_y += line_height * line_spacing
+                # Draw text
+                draw.text((x, y), design_text, font=font, fill=text_color)
                 
                 # Convert to bytes
                 img_bytes = io.BytesIO()
@@ -440,7 +398,7 @@ with col2:
                 img_bytes.seek(0)
                 
                 # Display
-                st.image(img_bytes, use_column_width=True)
+                st.image(img_bytes, use_column_width=True, caption="Your Generated Design")
                 
                 # Show design info
                 with st.expander("📊 Design Details", expanded=False):
@@ -450,7 +408,7 @@ with col2:
                         st.metric("Font Size", f"{font_size}px")
                     with col_info2:
                         st.metric("Alignment", alignment)
-                        st.metric("Colors", f"BG: {bg_color}")
+                        st.metric("Background", bg_color)
                 
                 # Download buttons
                 col_d1, col_d2 = st.columns(2)
@@ -458,10 +416,9 @@ with col2:
                     st.download_button(
                         label="📥 Download PNG",
                         data=img_bytes,
-                        file_name=f"design_{st.session_state.design_count+1}.png",
+                        file_name="my_design.png",
                         mime="image/png",
-                        use_container_width=True,
-                        type="primary"
+                        use_container_width=True
                     )
                 
                 with col_d2:
@@ -475,80 +432,40 @@ with col2:
                 # Show AI feedback if API key provided
                 if api_key:
                     with st.expander("🤖 AI Design Analysis", expanded=False):
-                        feedback_prompt = f"""
-                        Design Analysis:
-                        - Text: "{design_text}"
-                        - Font: {st.session_state.selected_font} ({font_size}px)
-                        - Colors: {bg_color} background, {text_color} text
-                        - Alignment: {alignment}
-                        
-                        Give brief, constructive feedback on this design.
-                        """
-                        feedback = generate_ai_text(feedback_prompt, api_key)
+                        feedback = generate_ai_text(
+                            f"Design feedback for: '{design_text}' with {st.session_state.selected_font} font, {bg_color} background and {text_color} text",
+                            api_key
+                        )
                         st.info(feedback)
             
             except Exception as e:
                 st.error(f"Error generating design: {str(e)}")
-                st.info("Try adjusting font size or using a different font")
+                st.info("Try adjusting the font size or using a different font")
         
         else:
-            # Show placeholder with current font preview
+            # Show placeholder
             placeholder = Image.new('RGB', (600, 400), color='#f0f2f6')
             draw = ImageDraw.Draw(placeholder)
             
-            # Try to draw with selected font
+            # Draw placeholder text
             try:
                 font = load_font(st.session_state.selected_font, 24)
-                draw.text((100, 180), "Your design will appear here", fill="#666666", font=font)
+                draw.text((100, 180), "Design Preview", fill="#666666", font=font)
+                draw.text((100, 220), f"Font: {st.session_state.selected_font}", fill="#888888", font=font)
             except:
-                draw.text((100, 180), "Your design will appear here", fill="#666666")
+                draw.text((100, 180), "Enter text and click 'Generate Design'", fill="#666666")
             
-            st.image(placeholder, use_column_width=True)
+            st.image(placeholder, use_column_width=True, caption="Preview Area")
             
             # Quick tips
-            with st.expander("💡 Design Tips", expanded=True):
-                st.markdown("""
-                1. **Font Selection**: Choose a font that matches your message
-                2. **Color Contrast**: Ensure text is readable against background
-                3. **Font Size**: Larger sizes for headings, smaller for details
-                4. **Alignment**: Center for formal, left for casual
-                5. **AI Assistant**: Use AI for creative text suggestions
-                """)
+            st.info("💡 **Quick Start:**\n1. Enter your text\n2. Choose a font\n3. Select colors\n4. Click 'Generate Design'")
 
 # Footer
 st.markdown("---")
-col_f1, col_f2, col_f3 = st.columns([1, 2, 1])
-with col_f2:
-    st.markdown(
-        """
-        <div style='text-align: center; color: #666; font-size: 0.9rem;'>
-        <p>🎨 <b>Smart Designer App</b> | Fonts Available: {font_count} | 
-        <a href='https://github.com/yourusername/smart-designer-app' target='_blank'>GitHub</a></p>
-        <p style='font-size: 0.8rem; color: #888;'>
-        Supports: {font_list}
-        </p>
-        </div>
-        """.format(
-            font_count=len(st.session_state.available_fonts),
-            font_list=", ".join(list(st.session_state.available_fonts.keys())[:5])
-        ),
-        unsafe_allow_html=True
-    )
-
-# Add JavaScript for better font selection
-st.markdown("""
-<script>
-// Add click handlers for font options
-document.addEventListener('DOMContentLoaded', function() {
-    const fontOptions = document.querySelectorAll('.font-option');
-    fontOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            // Remove selected class from all
-            fontOptions.forEach(opt => opt.classList.remove('selected'));
-            // Add selected class to clicked
-            this.classList.add('selected');
-        });
-    });
-});
-</script>
-""", unsafe_allow_html=True)
+st.markdown(
+    "<div style='text-align: center; color: #666; font-size: 0.9rem;'>"
+    "🎨 **Smart Designer App** | Fonts: {font_count} available | "
+    "Built with Streamlit"
+    "</div>".format(font_count=len(st.session_state.available_fonts)),
+    unsafe_allow_html=True
+)
