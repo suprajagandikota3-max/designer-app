@@ -1,25 +1,33 @@
-# 🎨 Smart Designer App
+## 🖋️ Font Support
 
-An intelligent design generator with AI-powered text suggestions, built with Streamlit.
+The app supports a wide range of fonts:
 
-![Demo](https://img.shields.io/badge/Demo-Available-green)
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-red)
+### Built-in System Fonts:
+- **Arial** (Regular & Bold)
+- **Times New Roman**
+- **Georgia**
+- **Verdana**
+- **Courier New**
+- **Trebuchet MS**
+- **Comic Sans MS**
+- **Impact**
+- **Tahoma**
+- **Lucida Console**
+- **Palatino**
+- **Garamond**
+- **Bookman**
 
-## ✨ Features
+### Font Categories:
+- **Sans-serif**: Clean, modern fonts (Arial, Verdana, Tahoma)
+- **Serif**: Traditional, formal fonts (Times New Roman, Georgia)
+- **Monospace**: Code and technical fonts (Courier New)
+- **Casual**: Fun and informal fonts (Comic Sans, Impact)
 
-- 🤖 **AI Text Generation** - Get creative text suggestions
-- 🎨 **Custom Design** - Full control over colors, fonts, and layout
-- 📱 **Responsive UI** - Clean, modern interface
-- 💾 **Export Designs** - Download as PNG
-- 🎯 **Smart Templates** - Quick-start design presets
-- 🔄 **Offline Mode** - Works without API keys
+### Automatic Detection:
+The app automatically detects available fonts on your system and provides appropriate fallbacks if a font isn't available.
 
-## 🚀 Quick Start
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/smart-designer-app.git
-cd smart-designer-app
+## 🎨 Font Features:
+- **Live Preview**: See font changes in real-time
+- **Category Filtering**: Browse fonts by type
+- **Template Matching**: Fonts are pre-selected for each template
+- **Font Fallback**: Uses default font if selected isn't available
