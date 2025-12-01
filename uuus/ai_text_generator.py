@@ -5,8 +5,11 @@ def get_ai_suggestions(prompt: str, api_key: Optional[str] = None) -> List[str]:
     """
     Get text suggestions - with AI if API key provided, otherwise fallback
     """
+    # Always provide fallback suggestions
+    fallback_suggestions = get_fallback_suggestions(prompt)
+    
     if not api_key:
-        return get_fallback_suggestions(prompt)
+        return fallback_suggestions
     
     try:
         # Try to import OpenAI
@@ -17,27 +20,26 @@ def get_ai_suggestions(prompt: str, api_key: Optional[str] = None) -> List[str]:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a creative copywriter."},
-                {"role": "user", "content": f"Generate 3 design text suggestions for: {prompt}"}
+                {"role": "system", "content": "You are a creative copywriter. Generate 3 short design text suggestions."},
+                {"role": "user", "content": f"Generate design text about: {prompt}"}
             ],
             max_tokens=50,
             n=3,
             temperature=0.7
         )
         
-        return [choice.message.content.strip() for choice in response.choices]
+        suggestions = [choice.message.content.strip() for choice in response.choices]
+        return suggestions if suggestions else fallback_suggestions
     
-    except ImportError:
-        return get_fallback_suggestions(prompt)
     except Exception:
-        return get_fallback_suggestions(prompt)
+        return fallback_suggestions
 
 def generate_ai_text(prompt: str, api_key: Optional[str] = None) -> str:
     """
     Generate AI response for design feedback
     """
     if not api_key:
-        return "🔒 Add your OpenAI API key in sidebar to enable AI feedback."
+        return "✨ **Tip:** Add your OpenAI API key in the sidebar for AI-powered design feedback!"
     
     try:
         import openai
@@ -47,7 +49,7 @@ def generate_ai_text(prompt: str, api_key: Optional[str] = None) -> str:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a graphic designer giving brief, helpful feedback."},
+                {"role": "system", "content": "You are a helpful design assistant. Provide brief, constructive feedback."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=100,
@@ -56,8 +58,8 @@ def generate_ai_text(prompt: str, api_key: Optional[str] = None) -> str:
         
         return response.choices[0].message.content
     
-    except Exception as e:
-        return f"⚠️ AI feedback unavailable: {str(e)}"
+    except Exception:
+        return "AI feedback is currently unavailable. Try again later or check your API key."
 
 def get_fallback_suggestions(prompt: str) -> List[str]:
     """
@@ -65,14 +67,13 @@ def get_fallback_suggestions(prompt: str) -> List[str]:
     """
     prompt_lower = prompt.lower()
     
-    # Categorized suggestions
     suggestion_banks = {
         "business": [
             "Professional Excellence",
             "Innovative Solutions",
             "Quality & Precision",
-            "Trusted Partnership",
-            "Business Growth"
+            "Business Growth",
+            "Trusted Partnership"
         ],
         "creative": [
             "Creative Vision",
@@ -97,12 +98,12 @@ def get_fallback_suggestions(prompt: str) -> List[str]:
         ]
     }
     
-    # Match category
-    if any(word in prompt_lower for word in ["business", "corporate", "professional"]):
+    # Match category based on prompt
+    if any(word in prompt_lower for word in ["business", "corporate", "professional", "company"]):
         bank = suggestion_banks["business"]
-    elif any(word in prompt_lower for word in ["creative", "art", "design"]):
+    elif any(word in prompt_lower for word in ["creative", "art", "design", "color", "draw"]):
         bank = suggestion_banks["creative"]
-    elif any(word in prompt_lower for word in ["tech", "digital", "software"]):
+    elif any(word in prompt_lower for word in ["tech", "digital", "software", "app", "code"]):
         bank = suggestion_banks["tech"]
     else:
         bank = suggestion_banks["general"]
