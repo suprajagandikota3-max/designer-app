@@ -101,7 +101,7 @@ with st.sidebar:
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.markdown("<h3 class='sub-header'>✍️ Design Configuration</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 class='sub-header'>✍️ Design Configuration SUPRAJA</h3>", unsafe_allow_html=True)
     
     # Text input section
     st.markdown("### Text Content")
